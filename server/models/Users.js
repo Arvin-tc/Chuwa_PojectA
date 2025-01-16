@@ -24,6 +24,16 @@ const UserSchema = new mongoose.Schema({
     enum: ['admin', 'user'],
     default: 'user',
   },
+  cart :[
+    {
+      id:String,
+      name:String,
+      price:Number,
+      quantity:Number,
+      image:String,
+    }
+  ],
+
 });
 
 UserSchema.pre('save', async function (next) {

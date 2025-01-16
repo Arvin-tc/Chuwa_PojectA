@@ -3,17 +3,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import User from '../models/Users.js';
+import Product from '../models/Product.js';
 
 const router = express.Router();
-
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 router.post('/signup', async (req, res) => {
   try {
@@ -28,9 +20,15 @@ router.post('/signup', async (req, res) => {
 
     const user = await User.create({ email, password, userType });
 
+    const token = jwt.sign(
+      { id: user._id, userType: user.userType },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
     res.status(201).json({ 
       message: 'User created', 
-      user: { id: user._id, email: user.email, userType: user.userType } 
+      user: { id: user._id, email: user.email, userType: user.userType }, token, 
     });
   } catch (error) {
     console.error('Error creating user:', error);
@@ -53,11 +51,21 @@ router.post('/signin', async (req, res) => {
     if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
 
     const token = jwt.sign({ id: user._id, userType: user.userType }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({ message: 'Login successful', token });
+
+    res.status(200).json({ message: 'Login successful', user:{id: user._id, email:user.email, userType:user.userType}, token });
   } catch (error) {
     console.error('Error logging in:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+const transporter = nodemailer.createTransport({
+  host: "sandbox.smtp.mailtrap.io",
+  port: 2525,
+  auth: {
+    user: "f9595e6e9d11d1",
+    pass: "4905811891a09c",
+  },
 });
 
 router.post('/forgot-password', async (req, res) => {
@@ -103,6 +111,51 @@ router.post('/test-email', async (req, res) => {
   } catch (error) {
     console.error('Failed to send email:', error);
     res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
+router.post("/save-cart", async (req, res) => {
+  try {
+      const { userId, cartItems } = req.body;
+      const user = await User.findById(userId);
+
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      user.cart = cartItems; 
+      await user.save();
+
+      res.status(200).json({ message: "Cart saved successfully" });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/cart/:userId", async (req, res) => {
+  try {
+      const { userId } = req.params;
+      const user = await User.findById(userId);
+
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      const existingProducts = await Product.find({});
+      const existingProductIds = existingProducts.map((product) => product._id.toString());
+
+      // Filter out deleted items
+      const validCartItems = user.cart.filter((item) => existingProductIds.includes(item.id));
+
+      // Update the user's cart in the database
+      user.cart = validCartItems;
+      await user.save();
+
+      res.status(200).json({ cart: validCartItems });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal server error" });
   }
 });
 
