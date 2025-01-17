@@ -22,6 +22,7 @@ export default function Layout({ children }) {
       try {
         // Dispatch saveCart thunk
         await dispatch(saveCart({ userId: user.id, cartItems }));
+          console.log(cartItems);
       } catch (error) {
         console.error("Failed to save cart:", error.message);
       }

@@ -1,11 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { setCartItems } from "./cartSlice";
 
+const PORT = 3000;
+
 export const signUp = createAsyncThunk(
     'auth/signUp',
     async (userData, { rejectWithValue }) => {
         try {
-          const response = await fetch('http://localhost:5000/api/auth/signup', {
+          const response = await fetch(`http://localhost:${PORT}/api/auth/signup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData),
@@ -23,14 +25,35 @@ export const signUp = createAsyncThunk(
     }
 );
 
+const mergeCarts = (backendCart, guestCart) => {
+    const cartMap = new Map();
+    backendCart.forEach(item => {
+        cartMap.set(item.id, {...item});
+    });
+
+    guestCart.forEach(guestItem => {
+        if(cartMap.has(guestItem.id)) {
+            const existingItem = cartMap.get(guestItem.id);
+            existingItem.quantity += guestItem.quantity;
+        } else {
+
+            cartMap.set(guestItem.id, {...guestItem});
+        }
+    });
+
+    return Array.from(cartMap.values());
+}
+
 export const signIn = createAsyncThunk(
   "auth/signIn",
   async (userData, { rejectWithValue, dispatch }) => {
       try {
-          const response = await fetch("http://localhost:5000/api/auth/signin", {
+
+          const {guestCart, ...credentials} = userData;
+          const response = await fetch(`http://localhost:${PORT}/api/auth/signin`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(userData),
+              body: JSON.stringify(credentials),
           });
 
           if (!response.ok) {
@@ -39,16 +62,20 @@ export const signIn = createAsyncThunk(
           }
 
           const data = await response.json();
-
-          // Fetch the user's cart
-          const cartResponse = await fetch(`http://localhost:5000/api/auth/cart/${data.user.id}`);
-          const cartData = await cartResponse.json();
-
-          if (cartResponse.ok) {
-              dispatch(setCartItems(cartData.cart || [])); // Initialize cart in Redux
-              console.log("Cart data:", cartData);
-              localStorage.setItem("cartItems", JSON.stringify(cartData.items || [])); // Sync with localStorage
+          
+          // merge guest cart
+          const cartResponse = await fetch(`http://localhost:${PORT}/api/auth/cart/${data.user.id}`);
+          if(!cartResponse.ok){
+              console.warn("Failed to fetch cart");
           }
+
+          const backendCartData = await cartResponse.json();
+          const mergedCart = mergeCarts(backendCartData.cart || [], guestCart || []);
+
+          dispatch(setCartItems(mergedCart));
+          localStorage.setItem("cartItems", JSON.stringify(mergedCart));
+          localStorage.removeItem("guestCart");
+
 
           return data;
       } catch (error) {
@@ -62,7 +89,7 @@ export const saveCart = createAsyncThunk(
   "auth/saveCart",
   async ({ userId, cartItems }, { rejectWithValue }) => {
       try {
-          const response = await fetch("http://localhost:5000/api/auth/save-cart", {
+          const response = await fetch(`http://localhost:${PORT}/api/auth/save-cart`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ userId, cartItems }),

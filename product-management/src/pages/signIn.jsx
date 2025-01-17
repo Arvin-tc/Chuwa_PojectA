@@ -28,7 +28,10 @@ export default function SignIn() {
             alert('Invalid email format');
             return;
         }
-        dispatch(signIn(formData));
+
+        const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+        console.log(guestCart);
+        dispatch(signIn({ ...formData, guestCart }));
     };
 
     useEffect(() => {

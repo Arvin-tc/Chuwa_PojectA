@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+const PORT = 3000;
 
 export const fetchProducts = createAsyncThunk(
     'products/fetchProducts',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await fetch('http://localhost:5000/api/products');
+            const response = await fetch(`http://localhost:${PORT}/api/products`);
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.message || 'Failed to fetch products');
@@ -20,7 +21,7 @@ export const createProduct = createAsyncThunk(
     "products/createProduct",
     async (productData, { rejectWithValue }) => {
       try {
-        const response = await fetch("http://localhost:5000/api/products", {
+        const response = await fetch(`http://localhost:${PORT}/api/products`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(productData),
@@ -42,7 +43,7 @@ export const updateProduct = createAsyncThunk(
 "products/updateProduct",
 async ({ id, data }, { rejectWithValue }) => {
     try {
-    const response = await fetch(`http://localhost:5000/api/products/${id}`, {
+    const response = await fetch(`http://localhost:${PORT}/api/products/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

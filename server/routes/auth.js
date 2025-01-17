@@ -114,6 +114,8 @@ router.post('/test-email', async (req, res) => {
   }
 });
 
+
+
 router.post("/save-cart", async (req, res) => {
   try {
       const { userId, cartItems } = req.body;
@@ -123,15 +125,21 @@ router.post("/save-cart", async (req, res) => {
           return res.status(404).json({ message: "User not found" });
       }
 
-      user.cart = cartItems; 
+      user.cart = cartItems;
+
       await user.save();
 
-      res.status(200).json({ message: "Cart saved successfully" });
+      res.status(200).json({
+          message: "cart saved successfully",
+          cart: user.cart,
+      })
   } catch (error) {
-      console.error(error);
+      console.error("Error merging cart:", error);
       res.status(500).json({ message: "Internal server error" });
   }
 });
+
+
 
 router.get("/cart/:userId", async (req, res) => {
   try {

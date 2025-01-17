@@ -11,6 +11,7 @@ const ProductList = () => {
   const products = useSelector(selectProducts);
   const loading = useSelector(selectLoading);
   const error = useSelector(selectError);
+    const user = useSelector(state => state.auth.user);
 
   // Filter state
   const [filter, setFilter] = useState("lastAdded");
@@ -63,11 +64,11 @@ const ProductList = () => {
         {/* Filter */}
         <div className="flex justify-between items-center mb-4">
           <Filter currentFilter={filter} onFilterChange={handleFilterChange} />
-          <Link to="/products/create">
+      {user?.userType === 'admin' && (<Link to="/products/create">
             <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
               Add Product
             </button>
-          </Link>
+          </Link>)}
         </div>
 
         {/* Product Grid */}

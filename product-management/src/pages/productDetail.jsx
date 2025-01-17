@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { addItem, removeDeletedItem } from "../redux/cartSlice";
+const PORT = 3000;
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -17,7 +18,7 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/products/${id}`);
+        const response = await fetch(`http://localhost:${PORT}/api/products/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch product details");
         }
@@ -79,7 +80,7 @@ const ProductDetail = () => {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${id}`, {
+      const response = await fetch(`http://localhost:${PORT}/api/products/${id}`, {
         method: "DELETE",
       });
 

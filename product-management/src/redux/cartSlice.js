@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+const PORT = 3000;
 
 // Fetch the cart from the backend
 export const fetchCart = createAsyncThunk(
     "cart/fetchCart",
     async (userId, { rejectWithValue }) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/auth/cart/${userId}`);
+            const response = await fetch(`http://localhost:${PORT}/api/auth/cart/${userId}`);
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.message || "Failed to fetch cart");
@@ -16,7 +17,7 @@ export const fetchCart = createAsyncThunk(
             // Validate each cart item to ensure it still exists
             const validCartItems = await Promise.all(
                 data.cart.map(async (item) => {
-                    const productResponse = await fetch(`http://localhost:5000/api/products/${item.id}`);
+                    const productResponse = await fetch(`http://localhost:${PORT}/api/products/${item.id}`);
                     if (productResponse.ok) {
                         return item; // Product exists
                     }
