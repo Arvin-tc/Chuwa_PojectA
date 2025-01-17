@@ -8,6 +8,7 @@ import ProductList from './pages/productList';
 import ProductForm from './components/productFrom';
 import ProductDetail from './pages/productDetail';
 import Layout from './components/layout';
+import NotFound from './pages/notFound';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+            <Route path='*' element={<NotFound />} />
         </Routes>
         </Layout>
       </Router>

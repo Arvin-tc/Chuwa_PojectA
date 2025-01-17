@@ -13,22 +13,38 @@ const ProductCard = ({ product }) => {
         setQuantity((prevQuantity) => Math.max(prevQuantity + change, 1));
     };
     
-    const handleAddToCart = () => {
-        if (!user) {
-            const guestCart = JSON.parse(localStorage.getItem("guestcart")) || [];
-            const existingItemIndex = guestCart.findIndex((item) => item._id === product._id);
-            if (existingItemIndex >= 0) {
-                guestCart[existingItemIndex].quantity += quantity;
-            } else {
-                guestCart.push({ id: product._id, name: product.name, price: product.price, image: product.imageUrls[0], quantity });
-            }
-            localStorage.setItem("guestCart", JSON.stringify(guestCart));
-            alert(`Added ${quantity} ${product.name} to the cart!`);
-        }else{
-            dispatch(addItem({ id: product._id, name: product.name, price: product.price, image: product.imageUrls[0], quantity }));
-            alert(`${quantity} ${product.name} added to your cart.`);
+
+const handleAddToCart = () => {
+    if (!user) {
+        const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+        const existingItemIndex = guestCart.findIndex((item) => item.id === product._id);
+        if (existingItemIndex >= 0) {
+            guestCart[existingItemIndex].quantity += quantity;
+        } else {
+            guestCart.push({
+                id: product._id,
+                name: product.name,
+                price: product.price,
+                image: product.imageUrls[0],
+                quantity,
+            });
         }
-    };
+        localStorage.setItem("guestCart", JSON.stringify(guestCart));
+        alert(`Added ${quantity} ${product.name} to the cart!`);
+        window.location.reload(); 
+    } else {
+        dispatch(addItem({
+            id: product._id,
+            name: product.name,
+            price: product.price,
+            image: product.imageUrls[0],
+            quantity,
+        }));
+        alert(`${quantity} ${product.name} added to your cart.`);
+        window.location.reload(); 
+    }
+};
+
 
     return (
         <div className="border rounded-lg shadow-lg p-4 bg-white flex flex-col">
