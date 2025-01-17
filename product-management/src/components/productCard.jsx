@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { addItem } from "../redux/cartSlice";
-import "./../styles/productCard.css";
 
 const ProductCard = ({ product }) => {
     const user = useSelector((state) => state.auth.user); 

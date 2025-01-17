@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+
+// create the fetchProducts thunk to allow fetching products
 export const fetchProducts = createAsyncThunk(
     'products/fetchProducts',
     async (_, { rejectWithValue }) => {
@@ -7,7 +9,7 @@ export const fetchProducts = createAsyncThunk(
             const response = await fetch('http://localhost:5000/api/products');
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.message || 'Failed to fetch products');
+                throw new Error(error.message || 'Failed to fetch products. The product not found');
             }
             return await response.json();
         } catch (error) {
@@ -16,6 +18,7 @@ export const fetchProducts = createAsyncThunk(
     }
 );
 
+// create the createproduct thunk to create product
 export const createProduct = createAsyncThunk(
     "products/createProduct",
     async (productData, { rejectWithValue }) => {
@@ -37,7 +40,8 @@ export const createProduct = createAsyncThunk(
       }
     }
 );
-  
+
+// create the updateProduct thunk to update product
 export const updateProduct = createAsyncThunk(
 "products/updateProduct",
 async ({ id, data }, { rejectWithValue }) => {
@@ -59,9 +63,9 @@ async ({ id, data }, { rejectWithValue }) => {
     }
 }
 );
-  
 
 
+// create the slice for products
 const productSlice = createSlice({
     name: 'products',
     initialState: {
@@ -69,7 +73,7 @@ const productSlice = createSlice({
         error: null,
         loading: false,
     },
-    reducers:{},
+    reducers: {},
     extraReducers:(builder) =>{
         builder
             .addCase(fetchProducts.pending, (state) => {
