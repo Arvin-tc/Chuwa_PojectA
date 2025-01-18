@@ -61,7 +61,25 @@ async ({ id, data }, { rejectWithValue }) => {
 }
 );
   
+export const deleteProduct = createAsyncThunk(
+    "products/deleteProduct",
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await fetch(`http://localhost:${PORT}/api/products/${id}`, {
+                method: "DELETE",
+            });
 
+            if(!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || "Failed to delete product");
+            }
+            
+            return id;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+)
 
 const productSlice = createSlice({
     name: 'products',
@@ -86,6 +104,18 @@ const productSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             });
+            // .addCase(createProduct.fulfilled, (state, action) => {
+            //     state.products.push(action.payload.product);
+            // })
+            // .addCase(updateProduct.fulfilled, (state, action) => {
+            //     const index = state.products.findIndex(product => product._id === action.payload.product._id);
+            //     if(index !== -1) {
+            //         state.products[index] = action.payload.product;
+            //     }
+            // })
+            // .addCase(deleteProduct.fulfilled, (state, action) => {
+            //     state.products = state.products.filter(product => product._id !== action.payload);
+            // });
         }      
 });
 

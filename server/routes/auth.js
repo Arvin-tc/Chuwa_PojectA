@@ -151,10 +151,16 @@ router.get("/cart/:userId", async (req, res) => {
       }
 
       const existingProducts = await Product.find({});
-      const existingProductIds = existingProducts.map((product) => product._id.toString());
+      // const existingProductIds = existingProducts.map((product) => product._id.toString());
+      const existingProductsMap = new Map(
+          existingProducts.map((product) => [product._id.toString(), product.stock])
+      );
 
       // Filter out deleted items
-      const validCartItems = user.cart.filter((item) => existingProductIds.includes(item.id));
+      const validCartItems = user.cart.filter((item) => {
+          const stock = existingProductsMap.get(item.id);
+          return stock !== undefined && stock > 0;
+      });
 
       // Update the user's cart in the database
       user.cart = validCartItems;
