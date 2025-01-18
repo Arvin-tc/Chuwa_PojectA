@@ -85,7 +85,7 @@ export default function Layout({ children }) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow container mx-auto px-6 py-4">{children}</main>
+      <main className="flex-grow flex items-center justify-center">{children}</main>
 
       {/* Footer */}
       <footer className="bg-blue-800 text-white py-4">

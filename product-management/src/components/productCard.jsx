@@ -31,7 +31,7 @@ const handleAddToCart = () => {
         }
         localStorage.setItem("guestCart", JSON.stringify(guestCart));
         alert(`Added ${quantity} ${product.name} to the cart!`);
-        window.location.reload(); 
+        // window.location.reload(); 
     } else {
         dispatch(addItem({
             id: product._id,
@@ -41,7 +41,7 @@ const handleAddToCart = () => {
             quantity,
         }));
         alert(`${quantity} ${product.name} added to your cart.`);
-        window.location.reload(); 
+        // window.location.reload(); 
     }
 };
 
